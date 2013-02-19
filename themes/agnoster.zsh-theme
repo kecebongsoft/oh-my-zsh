@@ -103,10 +103,12 @@ prompt_status() {
 }
 
 function prompt_hg() {
-    if [[ -n $(hg branch) ]]; then
+    hg branch &> /dev/null
+    hg_dir_check=$?
+    if [ $hg_dir_check -eq 0  ]; then
         prompt_segment yellow black
         branch=$(hg branch)
-        echo -n "/⭠ $branch"
+        echo -n "⭠ $branch"
     fi
 }
 
