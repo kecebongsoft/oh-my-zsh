@@ -102,6 +102,15 @@ prompt_status() {
   [[ -n "$symbols" ]] && prompt_segment black default "$symbols"
 }
 
+function prompt_hg() {
+    if [[ -n $(hg branch) ]]; then
+        prompt_segment yellow black
+        branch=$(hg branch)
+        echo -n "/⭠ $branch"
+    fi
+}
+
+
 ## Main prompt
 build_prompt() {
   RETVAL=$?
@@ -109,6 +118,7 @@ build_prompt() {
   prompt_context
   prompt_dir
   prompt_git
+  prompt_hg
   prompt_end
 }
 
