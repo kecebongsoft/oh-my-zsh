@@ -136,9 +136,11 @@ function prompt_hg() {
 }
 
 function prompt_virtualenv() {
-    prompt_segment cyan white
     env_name=$(basename "$VIRTUAL_ENV")
-    echo -n $env_name
+    if [[ $env_name != "" ]]; then
+        prompt_segment cyan white
+        echo -n $env_name
+    fi
 }
 
 
@@ -152,15 +154,18 @@ build_prompt() {
 }
 
 build_rprompt() {
-  prompt_left_end
-  prompt_virtualenv
-  prompt_git
-  prompt_hg
-
+  hg branch &> /dev/null
+  hg_dir_check=$?
+  git status &> /dev/null
+  git_dir_check=$?
+  if [[ $hg_dir_check -eq 0 || $git_dir_check -eq 0 || $(basename "$VIRTUAL_ENV") -ne "" ]]; then
+    prompt_left_end
+    prompt_virtualenv
+    prompt_git
+    prompt_hg
+  fi
 }
 
-PS1="$_OLD_VIRTUAL_PS1"
-_OLD_RPROMPT="$RPROMPT"
 
 PROMPT='%{%f%b%k%}$(build_prompt) '
 RPROMPT='%{%f%b%k%}$(build_rprompt) '
