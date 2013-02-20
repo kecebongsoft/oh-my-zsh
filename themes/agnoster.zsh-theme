@@ -44,10 +44,33 @@ prompt_segment() {
   [[ -n $3 ]] && echo -n $3
 }
 
+rprompt_segment() {
+  local bg fg
+  [[ -n $1 ]] && bg="%K{$1}" || bg="%k"
+  [[ -n $2 ]] && fg="%F{$2}" || fg="%f"
+  if [[ $CURRENT_BG != 'NONE' && $1 != $CURRENT_BG ]]; then
+    echo -n " %{$bg%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR%{$fg%} "
+  else
+    echo -n "%{$bg%}%{$fg%} "
+  fi
+  CURRENT_BG=$1
+  [[ -n $3 ]] && echo -n $3
+}
+
 # End the prompt, closing any open segments
 prompt_end() {
   if [[ -n $CURRENT_BG ]]; then
     echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
+  else
+    echo -n "%{%k%}"
+  fi
+  echo -n "%{%f%}"
+  CURRENT_BG=''
+}
+
+prompt_left_end() {
+  if [[ -n $CURRENT_BG ]]; then
+    echo -n "%{%k%F{$CURRENT_BG}%}"
   else
     echo -n "%{%k%}"
   fi
@@ -106,10 +129,16 @@ function prompt_hg() {
     hg branch &> /dev/null
     hg_dir_check=$?
     if [ $hg_dir_check -eq 0  ]; then
-        prompt_segment yellow black
+        prompt_segment green black
         branch=$(hg branch)
         echo -n "⭠ $branch"
     fi
+}
+
+function prompt_virtualenv() {
+    prompt_segment cyan white
+    env_name=$(basename "$VIRTUAL_ENV")
+    echo -n $env_name
 }
 
 
@@ -119,9 +148,20 @@ build_prompt() {
   prompt_status
   prompt_context
   prompt_dir
-  prompt_git
-  prompt_hg
   prompt_end
 }
 
+build_rprompt() {
+  prompt_left_end
+  prompt_virtualenv
+  prompt_git
+  prompt_hg
+
+}
+
+PS1="$_OLD_VIRTUAL_PS1"
+_OLD_RPROMPT="$RPROMPT"
+
 PROMPT='%{%f%b%k%}$(build_prompt) '
+RPROMPT='%{%f%b%k%}$(build_rprompt) '
+
