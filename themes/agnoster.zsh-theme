@@ -158,7 +158,7 @@ build_rprompt() {
   hg_dir_check=$?
   git status &> /dev/null
   git_dir_check=$?
-  if [[ $hg_dir_check -eq 0 || $git_dir_check -eq 0 || $(basename "$VIRTUAL_ENV") -ne "" ]]; then
+  if [[ $hg_dir_check -eq 0 || $git_dir_check -eq 0 || $(basename "$VIRTUAL_ENV") != "" ]]; then
     prompt_left_end
     prompt_virtualenv
     prompt_git
